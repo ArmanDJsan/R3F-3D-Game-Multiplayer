@@ -5,13 +5,16 @@ import { useAtom, atom } from 'jotai'
 
 export const socket = io("http://localhost:3001")
 export const charactersAtom = atom([]);
+export const userAtom = atom(null);
 
 
 export const SocketManager = () => {
-    const [characters, setCharacters] = useAtom(charactersAtom);
+    const [_characters, setCharacters] = useAtom(charactersAtom);
+    const [_user,setUser] =useAtom(userAtom);
     useEffect(() =>{
-        function onConnect(){
-            console.log("Bienvenido");
+        function onConnect(value){
+            setUser(value);
+            console.log(value);
         }
         function onDisconnect(){
             console.log("disconnected");
@@ -21,16 +24,17 @@ export const SocketManager = () => {
         }
         function onCharacters(value){
             setCharacters(value);
+            
         }
 
-        socket.on("connect", onConnect);
+        socket.on("connected", onConnect);
         socket.on("disconnect",onDisconnect);
         socket.on("hello",onHello);
         socket.on("characters",onCharacters);
 
 
         return () => {
-            socket.off("connect", onConnect);
+            socket.off("connected", onConnect);
             socket.off("disconnecte", onDisconnect);
             socket.off("hello", onHello);
             socket.off("characters",onCharacters);

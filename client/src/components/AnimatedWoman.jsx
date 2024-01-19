@@ -2,16 +2,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useFrame, useGraph } from '@react-three/fiber'
 import { SkeletonUtils } from 'three-stdlib'
+import { useAtom } from 'jotai'
+import { userAtom } from './SocketManager'
+import { Vector3 } from 'three'
+import * as THREE from 'three'
+
 
 export function AnimatedWoman({
   hairColor = "white",
   topColor = "blue  ",
   bottomColor = "brown",
   shoesColor = "black",
+  id,
   ...props
 }) {
   const MOVEMENT_SPEED = 0.032;
-  const position = useMemo(()=> props.position,[]);
+  const position = useMemo(() => props.position, []);
   const group = useRef()
   const { scene, materials, animations } = useGLTF('/models/AnimatedWoman.glb')
   //skinned meshes cannot be re-used in threejs wothout cloning the
@@ -27,19 +33,28 @@ export function AnimatedWoman({
     return () => actions[animation]?.fadeOut(0.5);
   }, [animation]);
 
-  useFrame(() => {
-    if(group.current.position.distanceTo(props.position)>0.1){
-    const direction = group.current.position
-    .clone()
-    .sub(props.position)
-    .normalize()
-    .multiplyScalar(MOVEMENT_SPEED);
-    group.current.position.sub(direction);
-    group.current.lookAt(props.position);
-    setAnimation("CharacterArmature|Run");
-  }else{
-    setAnimation("CharacterArmature|Idle");
-  }
+  const [user] = useAtom(userAtom);
+  useFrame((state) => {
+
+    if (group.current.position.distanceTo(props.position) > 0.1) {
+      const direction = group.current.position
+        .clone()
+        .sub(props.position)
+        .normalize()
+        .multiplyScalar(MOVEMENT_SPEED);
+      group.current.position.sub(direction);
+      group.current.lookAt(props.position);
+      setAnimation("CharacterArmature|Run");
+    } else {
+      setAnimation("CharacterArmature|Idle");
+    }
+    if (id === user) {
+      state.camera.position.x=group.current.position.x + 8;
+     
+      state.camera.position.z=group.current.position.z + 8;
+      state.camera.lookAt(group.current.position);
+    }
+
   })
   return (
     <group ref={group} {...props} position={position} dispose={null}>

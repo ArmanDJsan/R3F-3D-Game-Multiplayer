@@ -23,12 +23,13 @@ export const Experience = () => {
         onPointerEnter={(e) => setOnFloor(true)}
         onPointerLeave={(e) => setOnFloor(false)}
       >
-        <planeGeometry args={[10, 10]} />
+        <planeGeometry args={[30, 30]} />
         <meshStandardMaterial color={"#f0f0f0"} />
       </mesh>
       {characters.map((char) => (
         <AnimatedWoman
           key={char.id}
+          id={char.id}
           position={new THREE.Vector3(char.position[0],char.position[1],char.position[2])}
           topColor={char.topColor}
           bottomColor={char.bottomColor}

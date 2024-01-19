@@ -22,7 +22,8 @@ const newRandomColor = () => {
 io.on("connection", (socket) => {
 
     console.log("user connected");
-    socket.emit("connected", "bienvenido");
+    const id= socket.id;
+    socket.emit("connected", id);
     characters.push({
         id: socket.id,
         position: newRandomPosition(),
